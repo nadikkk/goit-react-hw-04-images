@@ -15,6 +15,7 @@ export default function Modal({ bigImg, close }) {
     return () => {
       document.removeEventListener('keydown', closeModal);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

@@ -1,43 +1,42 @@
-import { Component } from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import css from './Searchbar.module.css';
 import { FiSearch } from 'react-icons/fi';
 
-export default class Searchbar extends Component {
-  state = {
-    nameImg: '',
-  };
-  onSubmit = e => {
+export default function Searchbar ({onSubmit}) {
+	const [nameImg, setNameImg] = useState('')
+ 
+  const isSubmit = e => {
     e.preventDefault();
-    if (this.state.nameImg.trim() === '') {
+    if (nameImg.trim() === '') {
       return alert('Please enter a search word');
     }
-    this.props.onSubmit(this.state.nameImg);
+    onSubmit(nameImg);
   };
-  changeNameImg = e => {
-    this.setState({ nameImg: e.currentTarget.value.toLowerCase().trim() });
+  const changeNameImg = e => {
+	setNameImg( e.currentTarget.value.toLowerCase().trim());
   };
-  render() {
-    return (
-      <header className={css.searchbar}>
-        <form className={css.form} onSubmit={this.onSubmit}>
-          <button type="submit" className={css.button}>
-            <FiSearch />
-          </button>
+  
+	return (
+	<header className={css.searchbar}>
+		<form className={css.form} onSubmit={isSubmit}>
+			<button type="submit" className={css.button}>
+			<FiSearch />
+			</button>
 
-          <input
-            className={css.input}
-            type="text"
-            autoComplete="off"
-            autoFocus
-            placeholder="Search images and photos"
-            value={this.nameImg}
-            onChange={this.changeNameImg}
-          />
-        </form>
-      </header>
-    );
-  }
+			<input
+			className={css.input}
+			type="text"
+			autoComplete="off"
+			autoFocus
+			placeholder="Search images and photos"
+			value={nameImg}
+			onChange={changeNameImg}
+			/>
+		</form>
+	</header>
+	);
+
 }
 
 Searchbar.propTypes = {

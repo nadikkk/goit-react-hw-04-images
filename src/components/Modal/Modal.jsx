@@ -1,31 +1,29 @@
-import { Component } from 'react';
+import { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import css from './Modal.module.css';
 
-export default class Modal extends Component {
-  componentDidMount() {
-    document.addEventListener('keydown', this.closeModal);
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener('keydown', this.closeModal);
-  }
-
-  closeModal = ({ target, currentTarget, code }) => {
+export default function Modal({ bigImg, close }) {
+  const closeModal = ({ target, currentTarget, code }) => {
     if (target === currentTarget || code === 'Escape') {
-      this.props.close();
+      close();
     }
   };
 
-  render() {
-    return (
-      <div className={css.overlay} onClick={this.closeModal}>
-        <div className={css.modal}>
-          <img src={this.props.bigImg} alt="Big Pictures" />
-        </div>
+  useEffect(() => {
+    document.addEventListener('keydown', closeModal);
+
+    return () => {
+      document.removeEventListener('keydown', closeModal);
+    };
+  }, []);
+
+  return (
+    <div className={css.overlay} onClick={closeModal}>
+      <div className={css.modal}>
+        <img src={bigImg} alt="Big Pictures" />
       </div>
-    );
-  }
+    </div>
+  );
 }
 Modal.propTypes = {
   bigImg: PropTypes.string.isRequired,

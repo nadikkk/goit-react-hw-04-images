@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import css from './App.module.css';
 import Searchbar from './Searchbar/Searchbar';
 import ImageGallery from './ImageGallery/ImageGallery';
@@ -7,71 +7,66 @@ import Loader from './Loader/Loader';
 import Modal from './Modal/Modal';
 import fetch from '../services/api';
 
-export default class App extends Component {
-  state = {
-    nameImg: '',
-    images: [],
-    page: 1,
-    isLoader: false,
-    isModal: false,
-    bigImg: '',
-  };
+export default function App() {
+  const [nameImg, setNameImg] = useState('');
+  const [images, setImages] = useState([]);
+  const [page, setPage] = useState(1);
+  const [isLoader, setIsLoader] = useState(false);
+  const [isModal, setIsModal] = useState(false);
+  const [bigImg, setBigImg] = useState('');
 
-  isSearchNameImg = nameImg => {
-    if (nameImg !== this.state.nameImg) {
-      this.setState({ nameImg, images: [], page: 1 });
+  const isSearchNameImg = nameImges => {
+    if (nameImges !== nameImg) {
+      setNameImg(nameImges);
+      setImages([]);
+      setPage(1);
     }
   };
 
-  componentDidUpdate(prevProps, prevState) {
-    const { nameImg, page } = this.state;
-    if (prevState.nameImg !== nameImg || prevState.page !== page) {
-      this.isFetchImg();
+  useEffect(() => {
+    if (!nameImg) {
+      return;
     }
-  }
-
-  isFetchImg = () => {
-    const { nameImg, page } = this.state;
-    this.setState({ isLoader: true });
+    setIsLoader(true);
     fetch(nameImg, page)
       .then(({ data }) => {
         if (data.total === 0) {
           return alert('There are no images for this request, try again');
         }
-        this.setState(prevState => {
-          return { images: [...prevState.images, ...data.hits] };
+        setImages(prevState => {
+          return [...prevState, ...data.hits];
         });
       })
       .catch(error => console.log(error.message))
-      .finally(() => this.setState({ isLoader: false }));
-  };
+      .finally(() => setIsLoader(false));
+  }, [nameImg, page]);
 
-  isChangePage = () => {
-    this.setState(prevState => {
-      return { page: prevState.page + 1 };
+  const isChangePage = () => {
+    setPage(prevState => {
+      return prevState + 1;
     });
   };
-  isOpenModal = img => {
-    this.setState({ isModal: true });
-    this.setState({ bigImg: img });
+  const isOpenModal = img => {
+    setIsModal(true);
+    setBigImg(img);
     return img;
   };
-  isCloseModal = () => {
-    this.setState({ isModal: false });
+  const isCloseModal = () => {
+    setIsModal(false);
+    setBigImg('');
   };
 
-  render() {
-    const { images, isLoader, isModal, bigImg } = this.state;
-    return (
-      <div className={css.App}>
-        <Searchbar onSubmit={this.isSearchNameImg} />
-        <div>
-          <ImageGallery gallery={images} bigImg={this.isOpenModal} />
-          {images.length >= 12 && <Button onClick={this.isChangePage} />}
-          {isLoader && <Loader />}
-        </div>
-        {isModal && <Modal bigImg={bigImg} close={this.isCloseModal} />}
+  return (
+    <div className={css.App}>
+      <Searchbar onSubmit={isSearchNameImg} />
+      <div>
+        {images.length !== 0 && (
+          <ImageGallery gallery={images} bigImg={isOpenModal} />
+        )}
+        {(images.length >= 12 && !isLoader) && <Button onClick={isChangePage} />}
+        {isLoader && <Loader />}
       </div>
-    );
-  }
+      {isModal && <Modal bigImg={bigImg} close={isCloseModal} />}
+    </div>
+  );
 }

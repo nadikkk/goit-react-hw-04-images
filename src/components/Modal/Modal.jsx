@@ -10,12 +10,12 @@ export default function Modal({ bigImg, close }) {
   };
 
   useEffect(() => {
-    document.addEventListener('keydown', closeModal);
+    document.addEventListener('keydown', close);
 
     return () => {
-      document.removeEventListener('keydown', closeModal);
+      document.removeEventListener('keydown', close);
     };
-  },);
+  }, [close]);
 
   return (
     <div className={css.overlay} onClick={closeModal}>
